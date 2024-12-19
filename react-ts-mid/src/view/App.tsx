@@ -140,7 +140,7 @@ const App = () => {
           placeholder="班級"
           value={newStudent.class}
           onChange={handleInputChange}
-        />git
+        />
         <input
           type="email"
           name="email"

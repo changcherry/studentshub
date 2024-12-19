@@ -3,51 +3,32 @@
  * @param api 要呼叫的api
  * @returns json 結果
  */
-export async function asyncGet(api: string):Promise<any>{
-    try {
-        const res: Response = await fetch(api)
-        try {
-            return await res.json()
-        } catch (error) {
-            return error
-        }
-    } catch (error) {
-        return error
-    }
-}
-
 export async function asyncPost(api: string, body: {} | FormData) {
-    const res: Response = await fetch(api, {
-        method: 'POST',
-        credentials: 'include',
-        headers:new Headers({
-            'Access-Control-Allow-Origin':"http://localhost:5173/",
-            'content-Type':"application/json"
-        }),
-        body: body instanceof FormData?body:JSON.stringify(body),
-        mode:"cors"
-    })
     try {
-        let data = res.json()
-        return data
-    } catch (error) {
-        console.error(error)
+        const res: Response = await fetch(api, {
+            method: 'POST',
+            headers: new Headers({
+                'Content-Type': "application/json"
+            }),
+            body: body instanceof FormData ? body : JSON.stringify(body),
+            mode: "cors"
+        });
+
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        return data;
+
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("Error message:", error.message);
+            return { success: false, message: error.message };
+        } else {
+            console.error("Unexpected error:", error);
+            return { success: false, message: "Unexpected error occurred." };
+        }
     }
 }
 
-export async function asyncPatch(api: string, body: {} | FormData) {
-    const res: Response = await fetch(api, {
-        method: 'PATCH',
-        headers:new Headers({
-            'Access-Control-Allow-Origin':"http://localhost:5173/",
-        }),
-        body: body instanceof FormData?body:JSON.stringify(body),
-        mode:"cors"
-    })
-    try {
-        let data = res.json()
-        return data
-    } catch (error) {
-        console.error(error)
-    }
-}

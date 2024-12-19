@@ -1,4 +1,4 @@
-const BASE_URL = "http://163.13.201.151:8877/api/v1";
+const BASE_URL = "http://127.0.0.1:3000/api/v1";
 
 export enum api {
     findAll = `${BASE_URL}/user/findAll`,  // 查詢所有學生
