@@ -25,9 +25,9 @@ const App = () => {
 
   // 取得學生列表
   const fetchStudents = async () => {
-    if (cache.current) return;
-
-    cache.current = true;
+    // if (cache.current) return;
+    console.log("fetching")
+    // cache.current = true;
     try {
       const res: resp<Array<Student>> = await asyncGet(api.findAll);
       if (res.code === 200) {
