@@ -14,26 +14,31 @@ export class UserController extends Contorller {
         this.service = new UserService();
     }
 
-    public async findAll(Request: Request, Response: Response) {
-
-        const res: resp<Array<DBResp<Student>> | undefined> = {
+    public async findAll(req: Request, res: Response) {
+        const responseObj: resp<Array<DBResp<Student>> | undefined> = {
             code: 200,
             message: "",
             body: undefined
+        };
+    
+        try {
+            const dbResp = await this.service.getAllStudents();
+            if (dbResp && dbResp.length > 0) {
+                responseObj.body = dbResp;
+                responseObj.message = "find successful";
+                res.json(responseObj); // 使用 json() 方法發送回應
+            } else {
+                responseObj.code = 404;
+                responseObj.message = "no students found";
+                res.status(404).json(responseObj); // 發送 404 回應
+            }
+        } catch (error) {
+            responseObj.code = 500;
+            responseObj.message = "server error";
+            res.status(500).json(responseObj); // 發送 500 錯誤
         }
-
-        const dbResp = await this.service.getAllStudents();
-        if (dbResp) {
-            res.body = dbResp;
-            res.message = "find sucess";
-            Response.send(res);
-        } else {
-            res.code = 500;
-            res.message = "server error";
-            Response.status(500).send(res);
-        }
-
     }
+    
 
     public async insertOne(Request: Request, Response: Response) {
         const resp = await this.service.insertOne(Request.body)

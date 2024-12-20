@@ -14,8 +14,7 @@ export class UserRoute extends Route{
     }
 
     protected setRoutes(): void {
-        
-        this.router.get(`${this.url}findAll`,(req, res)=>{
+        this.router.get(`${this.url}findAll`, (req, res) => {
             this.Contorller.findAll(req, res);
         })
 
