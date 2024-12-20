@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../style/App.css'; // 引入樣式
-import { asyncGet, asyncPost } from '../utils/fetch'; // 引入自定義的 HTTP 請求方法
+import { asyncGet, asyncPost, asyncDelete } from '../utils/fetch'; // 引入自定義的 HTTP 請求方法
 import { api } from '../enum/api'; // 引入 API 枚舉
 import { Student } from '../interface/Student'; // 引入學生介面
 import { resp } from '../interface/resp'; // 引入通用回應介面
@@ -22,6 +22,7 @@ const App = () => {
     absences: 0,
     _id: '', // 預設 _id 為空，假設後端會生成
   }); // 儲存新增學生的表單資料
+  const [searchTerm, setSearchTerm] = useState<string>(''); // 儲存搜尋條件
 
   // 從伺服器獲取學生列表資料
   const fetchStudents = async () => {
@@ -45,6 +46,7 @@ const App = () => {
   
 
 
+
   // 組件掛載後自動調用 fetchStudents，類似於 componentDidMount
   useEffect(() => {
     fetchStudents();
@@ -66,7 +68,7 @@ const App = () => {
     if (sortCriteria === 'sid') {
       return a.sid - b.sid; // 座號排序
     } else if (sortCriteria === 'name') {
-     // return a.name.localeCompare(b.name); // 姓名排序
+      return a.name.localeCompare(b.name); // 姓名排序
     } else if (sortCriteria === 'department') {
       return a.department.localeCompare(b.department); // 院系排序
     }
@@ -101,6 +103,37 @@ const App = () => {
     }
   };
 
+  // 處理搜尋變更
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value); // 更新搜尋條件
+  };
+
+  // 搜尋學生
+  const filteredStudents = sortedStudents.filter((student) =>
+    student.name.toLowerCase().includes(searchTerm.toLowerCase()) // 搜尋條件，模糊搜尋姓名
+  );
+
+  // 刪除學生資料
+  const handleDeleteStudent = async (id: string) => {
+    try {
+        const res: resp<any> = await asyncDelete(`${api.deleteStudent}/${id}`);
+        if ('code' in res) { // 確認響應中是否包含 `code` 屬性
+            if (res.code === 200) {
+                setStudents(students.filter((student) => student._id !== id)); // 刪除指定學生
+            } else {
+                setError('刪除失敗，請稍後再試'); // 顯示刪除失敗消息
+            }
+        } else {
+            setError('未知錯誤，請稍後再試'); // 顯示未知錯誤消息
+        }
+    } catch (error) {
+        console.error('網路錯誤：', error); // 捕獲請求錯誤
+        setError('網路錯誤，請檢查您的連線'); // 顯示網路錯誤消息
+    }
+};
+
+
+
   return (
     <div className="container">
       {/* 頁面標題 */}
@@ -111,15 +144,15 @@ const App = () => {
       {/* 錯誤訊息提示 */}
       {error && <p className="error">{error}</p>}
 
-    {/*}  //{/* 排序選單
-      <div className="sort-container">
-        <label htmlFor="sort">排序方式：</label>
-        <select id="sort" value={sortCriteria} onChange={handleSortChange}>
-          <option value="sid">座號</option>
-          <option value="name">姓名</option>
-          <option value="department">院系</option>
-        </select>
-      </div> */}
+      {/* 搜尋欄 */}
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="搜尋學生姓名..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
+      </div>
 
       {/* 新增學生表單 */}
       <form onSubmit={handleAddStudent}>
@@ -157,7 +190,6 @@ const App = () => {
           placeholder="班級"
           value={newStudent.class}
           onChange={handleInputChange}
-          required
         />
         <input
           type="text"
@@ -177,8 +209,8 @@ const App = () => {
       </form>
 
       {/* 學生列表 */}
-      {sortedStudents.length > 0 ? (
-        sortedStudents.map((student) => (
+      {filteredStudents.length > 0 ? (
+        filteredStudents.map((student) => (
           <div className="student" key={student._id}>
             <p>帳號: {student.userName}</p>
             <p>座號: {student.sid}</p>
@@ -188,6 +220,7 @@ const App = () => {
             <p>班級: {student.class}</p>
             <p>Email: {student.Email}</p>
             <p>缺席次數: {student.absences ?? 0}</p>
+            <button onClick={() => handleDeleteStudent(student._id)}>刪除</button>
           </div>
         ))
       ) : (

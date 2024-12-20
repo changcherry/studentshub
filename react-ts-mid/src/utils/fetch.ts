@@ -50,4 +50,25 @@ export async function asyncPatch(api: string, body: {} | FormData) {
     } catch (error) {
         console.log(error)
     }
+
+}
+
+export async function asyncDelete<T>(api: string, key?: string): Promise<T | Error> {
+    const res: Response = await fetch(api, {
+        method: 'DELETE',
+        headers: new Headers(key
+            ? { 'authorization': key }
+            : {}
+        )
+    });
+    try {
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const data: T = await res.json(); // 确保解析数据成功
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+        return new Error('请求失败，请稍后再试。'); // 返回错误对象
+    }
 }
