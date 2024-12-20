@@ -10,7 +10,7 @@ const AddStudentForm = () => {
     department: '',
     grade: '',
     class: '',
-    email: '',
+    Email: '',
   });
   const [message, setMessage] = useState<string | null>(null);
 
@@ -24,7 +24,7 @@ const AddStudentForm = () => {
     setMessage(null); // 清空之前的提示訊息
 
     try {
-      const res = await asyncPost(api.addStudent, studentData);
+      const res = await asyncPost(api.insertOne, studentData);
       if (res.code === 200) {
         setMessage('學生新增成功');
       } else {
@@ -47,14 +47,14 @@ const AddStudentForm = () => {
           onChange={handleChange}
           required
         />
-        <input
+    { /*  <input
           type="text"
           name="sid"
           placeholder="座號"
           value={studentData.sid}
           onChange={handleChange}
           required
-        />
+        />*/}
         <input
           type="text"
           name="name"
@@ -88,10 +88,10 @@ const AddStudentForm = () => {
           required
         />
         <input
-          type="email"
-          name="email"
+          type="Email"
+          name="Email"
           placeholder="Email"
-          value={studentData.email}
+          value={studentData.Email}
           onChange={handleChange}
           required
         />

@@ -34,7 +34,7 @@ export interface Student {
     /**
      * Email
      */
-    email: string;
+    Email: string;
 
     /**
      * 缺席次數
